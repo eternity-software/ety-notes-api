@@ -1,12 +1,40 @@
+/**
+ * Include needle dependents
+ */
 const express = require('express');
-const router = express.Router();
-const Route = require("../../core/Route");
+const expressRouter = express.Router();
+const Router = require("../../core/Router");
 
-router.get("/account.create", (req, res) => {
-	new Route(req, res, {
-		controller: "Account",
-		method: "create"
-	});
+/**
+ * Create router instance
+ * @type {Router}
+ */
+const router = new Router(expressRouter);
+
+/**
+ * Register methods
+ */
+router.get({
+	url: "/account.create",
+	controller: "Account",
+	method: "create",
+	params: {
+		name: {
+			minLength: 4,
+			maxLength: 255,
+			required: true
+		},
+		email: {
+			regex: /[(\d+)(\w+).]*@(\w+)\.(\w+)/,
+			minLength: 4,
+			maxLength: 255,
+			required: true
+		},
+		password: {
+			minLength: 6,
+			required: true
+		}
+	}
 });
 
-module.exports = router;
+module.exports = router.result();
