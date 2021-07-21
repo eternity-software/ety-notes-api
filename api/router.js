@@ -14,7 +14,7 @@ const routePath = (path = "") => {
 		if(stat.isDirectory()){
 			routePath(`/${item}`);
 		} else {
-			console.log(`(NEW ROUTE): ${path}/${item} BY ${pathFile}`)
+			console.log(`> Registering new route: ${path}/${item} BY ${pathFile}`);
 			expressRouter.use(`${path}/${item.split(".")[0]}`, require(`${pathFile}`));
 		}
 	});

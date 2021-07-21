@@ -26,7 +26,7 @@ class Database {
 	getConnection(callback){
 		this.pool.getConnection((err, connection) => {
 			if(err){
-				console.log(`(DATABASE): ${err}`);
+				console.error(`[DATABASE] ${err}`);
 				this.response.error(408, "Database connection timeout");
 			}
 			callback(connection);
@@ -38,7 +38,7 @@ class Database {
 	 * @param err
 	 */
 	queryCatch = err => {
-		console.log(`(DATABASE QUERY ERROR): ${err}`);
+		console.error(`[DATABASE] Query error: ${err}`);
 		this.response.error(403, err);
 	}
 
@@ -53,7 +53,7 @@ class Database {
 	select(table, condition, params, callback, fields = "*"){
 		// Define sql to select query
 		const sql = `SELECT ${fields} FROM ${table} WHERE ${condition}`;
-		console.log(`(DATABASE QUERY): ${sql}`);
+		console.log(`[DATABASE] Making query: ${sql}`);
 		// Get connection from pool
 		this.getConnection((connection) => {
 			// Make query
@@ -62,7 +62,7 @@ class Database {
 					callback(rows, fields);
 				})
 				.catch((err) => {
-					console.log(`(DATABASE QUERY ERROR): ${err}`);
+					console.error(`[DATABASE] Query error: ${err}`);
 					this.response.error(403, err);
 				});
 		});
@@ -77,7 +77,7 @@ class Database {
 	selectAll(table, callback, fields = "*"){
 		// Define sql to select query
 		const sql = `SELECT ${fields} FROM ${table}`;
-		console.log(`(DATABASE QUERY): ${sql}`);
+		console.log(`[DATABASE] Making query: ${sql}`);
 		// Get connection from pool
 		this.getConnection((connection) => {
 			// Make query
@@ -99,7 +99,7 @@ class Database {
 	insert(table, sql_part, callback, params = []){
 		// Define sql to select query
 		const sql = `INSERT INTO ${table} ${sql_part}`;
-		console.log(`(DATABASE QUERY): ${sql}`);
+		console.log(`[DATABASE] Making query: ${sql}`);
 		// Get connection from pool
 		this.getConnection((connection) => {
 			// Make query
