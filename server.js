@@ -37,6 +37,7 @@ app.use((req, res, next) => {
 // Connect all routes (and all versions)
 app.use("/", require("./api/router"));
 
+
 const server = http.createServer(app);
 server.listen(80, () => {
 	console.log("\n---- SERVER STARTED ----\n".green);

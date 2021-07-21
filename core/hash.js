@@ -9,7 +9,7 @@ class Hash {
 	 * @param data
 	 * @param salt
 	 */
-	static make(data, salt = 16){
+	static make(data, salt = 2){
 		return bcrypt.hashSync(data, salt);
 	}
 

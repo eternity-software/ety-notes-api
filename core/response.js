@@ -6,12 +6,14 @@ class Response {
 	 * @param data
 	 */
 	static success(data = []){
-		return Response.response
+		Response.response
 			.status(200)
 			.json({
-			type: "success",
-			data: data
-		});
+				type: "success",
+				data: data
+			})
+			.end();
+		return Response.clear();
 	}
 
 	/**
@@ -26,12 +28,15 @@ class Response {
 			message: message
 		});
 
-		return Response.response
+		Response.response
 			.status(200)
 			.json({
-			type: "error",
-			data: Response.eventList
-		});
+				type: "error",
+				data: Response.eventList
+			})
+			.end();
+
+		return Response.clear();
 	}
 
 	/**
@@ -51,6 +56,10 @@ class Response {
 	 */
 	static set(response){
 		Response.response = response;
+	}
+
+	static clear(){
+		Response.eventList = [];
 	}
 }
 
