@@ -2,32 +2,23 @@
  * Include all dependents
  */
 const mysql = require('mysql2');
+const colors = require("colors");
+const Response = require("./response");
 
 class Database {
-	/**
-	 * Database constructor
-	 */
-	constructor() {
-		this.config = require("../config/db.config");
-		this.pool = mysql.createPool(this.config);
-	}
-
-	/**
-	 * Setter for response
-	 */
-	setResponse(response){
-		this.response = response;
-	}
+	
+	static config = require("../config/db.config");
+	static pool = mysql.createPool(Database.config);
 
 	/**
 	 * Get connection to callback
 	 * @param callback
 	 */
-	getConnection(callback){
-		this.pool.getConnection((err, connection) => {
+	static getConnection(callback){
+		Database.pool.getConnection((err, connection) => {
 			if(err){
-				console.error(`[DATABASE] ${err}`);
-				this.response.error(408, "Database connection timeout");
+				console.error(`> [DATABASE]: ${err}`);
+				Response.error(408, "Database connection timeout");
 			}
 			callback(connection);
 		});
@@ -37,9 +28,9 @@ class Database {
 	 * All query catch
 	 * @param err
 	 */
-	queryCatch = err => {
-		console.error(`[DATABASE] Query error: ${err}`);
-		this.response.error(403, err);
+	static queryCatch = err => {
+		console.error(`> [DATABASE] Query: ${err}`);
+		Response.error(403, err);
 	}
 
 	/**
@@ -50,20 +41,20 @@ class Database {
 	 * @param callback
 	 * @param fields
 	 */
-	select(table, condition, params, callback, fields = "*"){
+	static select(table, condition, params, callback, fields = "*"){
 		// Define sql to select query
 		const sql = `SELECT ${fields} FROM ${table} WHERE ${condition}`;
-		console.log(`[DATABASE] Making query: ${sql}`);
+		console.log(`> [DATABASE] Making query: ${sql}`);
 		// Get connection from pool
-		this.getConnection((connection) => {
+		Database.getConnection((connection) => {
 			// Make query
 			connection.promise().query(sql, params)
 				.then(([rows, fields]) => {
 					callback(rows, fields);
 				})
 				.catch((err) => {
-					console.error(`[DATABASE] Query error: ${err}`);
-					this.response.error(403, err);
+					console.error(`[DATABASE] Query: ${err}`);
+					Response.error(403, err);
 				});
 		});
 	}
@@ -74,18 +65,18 @@ class Database {
 	 * @param callback
 	 * @param fields
 	 */
-	selectAll(table, callback, fields = "*"){
+	static selectAll(table, callback, fields = "*"){
 		// Define sql to select query
 		const sql = `SELECT ${fields} FROM ${table}`;
-		console.log(`[DATABASE] Making query: ${sql}`);
+		console.log(`> [DATABASE] Making query: ${sql}`);
 		// Get connection from pool
-		this.getConnection((connection) => {
+		Database.getConnection((connection) => {
 			// Make query
 			connection.promise().query(sql)
 				.then(([rows, fields]) => {
 					callback(rows, fields);
 				})
-				.catch(this.queryCatch);
+				.catch(Database.queryCatch);
 		});
 	}
 
@@ -96,15 +87,15 @@ class Database {
 	 * @param callback
 	 * @param params
 	 */
-	insert(table, sql_part, callback, params = []){
+	static insert(table, sql_part, callback, params = []){
 		// Define sql to select query
 		const sql = `INSERT INTO ${table} ${sql_part}`;
 		console.log(`[DATABASE] Making query: ${sql}`);
 		// Get connection from pool
-		this.getConnection((connection) => {
+		Database.getConnection((connection) => {
 			// Make query
 			connection.query(sql, params, (err, result) => {
-				if (err) this.queryCatch(err);
+				if (err) Database.queryCatch(err);
 				callback(result.insertId);
 			});
 		});

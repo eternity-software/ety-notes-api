@@ -1,6 +1,9 @@
 const fs = require("fs");
+const colors = require("colors");
 const express = require("express");
 const expressRouter = express.Router();
+
+console.log("\n>> Router initialization..".yellow);
 
 const routePath = (path = "") => {
 	const pathDir = __dirname + path;
@@ -14,8 +17,9 @@ const routePath = (path = "") => {
 		if(stat.isDirectory()){
 			routePath(`/${item}`);
 		} else {
-			console.log(`> Registering new route: ${path}/${item} BY ${pathFile}`);
-			expressRouter.use(`${path}/${item.split(".")[0]}`, require(`${pathFile}`));
+			const requestAddress = path.replace(/\./gmi, "") + "/" + item.split(".")[0];
+			console.log(`> Registering new route: ${requestAddress} BY ${pathFile}`.cyan);
+			expressRouter.use(requestAddress, require(`${pathFile}`));
 		}
 	});
 }

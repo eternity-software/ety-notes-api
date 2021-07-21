@@ -1,17 +1,12 @@
 class Response {
-	/**
-	 * Constructor
-	 */
-	constructor() {
-		this.eventList = [];
-	}
+	static eventList = [];
 
 	/**
 	 * Send success answer
 	 * @param data
 	 */
-	success(data = []){
-		return this.response
+	static success(data = []){
+		return Response.response
 			.status(200)
 			.json({
 			type: "success",
@@ -24,18 +19,18 @@ class Response {
 	 * @param code
 	 * @param message
 	 */
-	error(code, message){
-		this.eventList.push({
+	static error(code, message){
+		Response.eventList.push({
 			type: "error",
 			code: code,
 			message: message
 		});
 
-		return this.response
+		return Response.response
 			.status(200)
 			.json({
 			type: "error",
-			data: this.eventList
+			data: Response.eventList
 		});
 	}
 
@@ -43,8 +38,8 @@ class Response {
 	 * Add warning event
 	 * @param message
 	 */
-	warning(message){
-		this.eventList.push({
+	static warning(message){
+		Response.eventList.push({
 			type: "warning",
 			message: message
 		});
@@ -54,8 +49,8 @@ class Response {
 	 * Setter for response object
 	 * @param response
 	 */
-	set(response){
-		this.response = response;
+	static set(response){
+		Response.response = response;
 	}
 }
 

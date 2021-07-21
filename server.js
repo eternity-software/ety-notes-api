@@ -1,5 +1,5 @@
 // Registering timer
-const timeLabel = "> Server startup"
+const timeLabel = "> Server startup";
 console.time(timeLabel)
 
 /**
@@ -9,19 +9,18 @@ const http = require("http");
 const express = require("express");
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
+const colors = require("colors");
 const Response = require("./core/response");
 const Database = require("./core/database");
 
-// Include application configuration
-const app_config = require("./config/app.config");
 // Create logger instance with dev modification
 const logger = morgan('dev');
 // Create express instance
 const app = express();
-// Create Database instance
-const database = new Database();
-// Create Response instance
-const response = new Response();
+// Initialization database
+Database.getConnection(() => {
+	console.log("> [DATABASE] started");
+});
 
 // Include the default logger
 app.use(logger);
@@ -30,9 +29,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use((req, res, next) => {
 	// Set response for Response
-	response.set(res);
-	// Set response for Database
-	database.setResponse(response);
+	Response.set(res);
 	// Go to next routes
 	next();
 });
@@ -42,7 +39,7 @@ app.use("/", require("./api/router"));
 
 const server = http.createServer(app);
 server.listen(80, () => {
-	console.log("\n---- SERVER STARTED ----\n");
+	console.log("\n---- SERVER STARTED ----\n".green);
 	console.log(">> etyNotes API, 2021 ")
 	console.timeLog(timeLabel);
 });
