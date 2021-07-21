@@ -1,3 +1,7 @@
+// Registering timer
+const timeLabel = "> Server startup"
+console.time(timeLabel)
+
 /**
  * Include all dependents
  */
@@ -7,10 +11,6 @@ const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const Response = require("./core/response");
 const Database = require("./core/database");
-
-// Registering timer
-const timeLabel = "> Server startup"
-console.time(timeLabel)
 
 // Include application configuration
 const app_config = require("./config/app.config");
