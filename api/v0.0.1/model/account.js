@@ -50,6 +50,11 @@ const AccountSession = db.define("account_session", {
 	time: {
 		type: Sequelize.INTEGER,
 		allowNull: false
+	},
+	activated: {
+		type: Sequelize.ENUM("Y", "N"),
+		defaultValue: "Y",
+		allowNull: false
 	}
 });
 
@@ -160,7 +165,11 @@ const login = async ({email, password}) => {
 const auth = async (token) => {
 	let session = await AccountSession.findOne({where: {token: token}, raw: true})
 	if(session) {
-		return await Account.findByPk(session.accountId);
+		if(session.activated === "Y"){
+			return await Account.findByPk(session.accountId);
+		} else {
+			return Response.error(400, "Token is expired");
+		}
 	}
 	return Response.error(400, "Token is invalid");
 }
@@ -178,23 +187,66 @@ const getInfo = async ({token}) => {
 }
 
 /**
- * Method for activate your account
+ * Account activate
  * @param token
  * @param code
  * @returns {Promise<void>}
  */
 const activate = async ({token, code}) => {
-	let account;
-	if( (account = await auth(token)) ) {
-		let verifyCode = await AccountVerifyCode.findOne({where: {code: code, accountId: account.id}, raw: true});
-		if(verifyCode){
-			await AccountVerifyCode.destroy({where: {id: verifyCode.id}});
-			if(await Account.update({activated: "Y"}, {where: {id: account.id}})){
-				return Response.success([]);
-			}
+	let account = await auth(token);
+	let verifyCode = await AccountVerifyCode.findOne({where: {code: code, accountId: account.id}, raw: true});
+	if(verifyCode){
+		await AccountVerifyCode.destroy({where: {id: verifyCode.id}});
+		if(await Account.update({activated: "Y"}, {where: {id: account.id}})){
+			return Response.success([]);
 		}
-		return Response.error(400, "Invalid activation code");
 	}
+	return Response.error(400, "Invalid activation code");
 }
 
-module.exports = { create, login, auth, getInfo, activate }
+/**
+ * Account edit
+ * @param token
+ * @param name
+ * @returns {Promise<void>}
+ */
+const edit = async ({token, name}) => {
+	let account = await auth(token);
+	if(await Account.update({name}, {where: {id: account.id}})){
+		return Response.success([]);
+	}
+	return Response.error(400, "Invalid edit");
+}
+
+/**
+ * Close session
+ * @param token
+ * @returns {Promise<void>}
+ */
+const logout = async ({token}) => {
+	let session = await AccountSession.findOne({where: {token: token, activated: "Y"}, raw: true})
+	if(session) {
+		if(await AccountSession.update({activated: "N"}, {where: {id: session.id}})){
+			return Response.success([]);
+		}
+	}
+	return Response.error(400, "Invalid token");
+}
+
+/**
+ * Account remove
+ * @param token
+ * @returns {Promise<void>}
+ */
+const remove = async ({token}) => {
+	let account = await auth(token);
+	let session = await AccountSession.destroy({where: {accountId: account.id}})
+	if(session) {
+		if(await Account.destroy({where: {id: account.id}})){
+			return Response.success([]);
+		}
+	}
+	return Response.error(400, "Invalid token");
+}
+
+module.exports = { create, login, auth, getInfo, activate, edit, logout, remove }

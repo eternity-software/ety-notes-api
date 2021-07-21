@@ -70,5 +70,42 @@ router.get({
 	}
 });
 
+router.get({
+	url: "/edit",
+	model: "/model/account",
+	method: "edit",
+	params: {
+		token: {
+			required: true
+		},
+		name: {
+			minLength: 4,
+			maxLength: 255,
+			required: true
+		}
+	}
+});
+
+router.get({
+	url: "/logout",
+	model: "/model/account",
+	method: "logout",
+	params: {
+		token: {
+			required: true
+		}
+	}
+});
+
+router.get({
+	url: "/remove",
+	model: "/model/account",
+	method: "remove",
+	params: {
+		token: {
+			required: true
+		}
+	}
+});
 
 module.exports = router.router();
