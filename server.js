@@ -17,10 +17,10 @@ const Database = require("./core/database");
 const logger = morgan('dev');
 // Create express instance
 const app = express();
-// Initialization database
-Database.getConnection(() => {
-	console.log("> [DATABASE] started");
-});
+// Sync database models
+Database.sync()
+	.then(() => console.log("> Database synced".cyan))
+	.catch(err => console.error(err));
 
 // Include the default logger
 app.use(logger);

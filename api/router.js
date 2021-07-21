@@ -15,11 +15,26 @@ const routePath = (path = "") => {
 		const stat = fs.statSync(pathFile);
 
 		if(stat.isDirectory()){
-			routePath(`/${item}`);
+			if(item === "model"){
+				defineModels(pathFile)
+			} else {
+				routePath(`/${item}`);
+			}
 		} else {
 			const requestAddress = path.replace(/\./gmi, "") + "/" + item.split(".")[0];
 			console.log(`> Registering new route: ${requestAddress} BY ${pathFile}`.cyan);
 			expressRouter.use(requestAddress, require(`${pathFile}`));
+		}
+	});
+}
+
+const defineModels = (path = "") => {
+	fs.readdirSync(path).map((item) => {
+		const pathFile = `${path}/${item}`;
+		const stat = fs.statSync(pathFile);
+
+		if(stat.isFile()){
+			require(pathFile);
 		}
 	});
 }
