@@ -117,6 +117,20 @@ router.get({
 });
 
 router.get({
+	url: "/getPerformers",
+	model: "/model/task",
+	method: "getPerformers",
+	params: {
+		token: {
+			required: true
+		},
+		taskId: {
+			required: true
+		}
+	}
+});
+
+router.get({
 	url: "/removePerformer",
 	model: "/model/task",
 	method: "removePerformer",

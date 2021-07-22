@@ -137,6 +137,33 @@ const addPerformer = async ({token, taskId, accountId, position}) => {
 }
 
 /**
+ * Get task performers
+ * @param token
+ * @param taskId
+ * @returns {Promise<void>}
+ */
+const getPerformers = async ({token, taskId}) => {
+	// Getting task
+	const task = await models.Task.findOne({where: {id: taskId}, raw: true});
+
+	if(task) {
+		// Getting list
+		const list = await models.List.findOne({where: {id: task.listId}, raw: true});
+		if(list) {
+			// Check rights
+			if(await deskModel.checkRights(token, list.deskId) !== true) return Response.error(400, "Access denied");
+			// Adding performer
+			const performers = await models.TaskPerformer.find({where: {taskId}, raw: true});
+			if(performers){
+				return Response.success({performers: performers});
+			}
+			return Response.error(500, "Something wrong");
+		}
+	}
+	return Response.error(400, "Task not found");
+}
+
+/**
  * Remove performer for task
  * @param token
  * @param taskId
@@ -213,4 +240,4 @@ const done = async ({token, id}) => {
 	return Response.error(400, "Task not found");
 }
 
-module.exports = { create, get, edit, getList, addPerformer, removePerformer, remove, done }
+module.exports = { create, get, edit, getList, addPerformer, getPerformers, removePerformer, remove, done }
