@@ -1,44 +1,31 @@
 const fs = require("fs");
 const colors = require("colors");
-const express = require("express");
-const expressRouter = express.Router();
 
-console.log("\n>> Router initialization..".yellow);
+module.exports = app => {
+	console.log("\n>> Router initialization..".yellow);
 
-const routePath = (path = "") => {
-	const pathDir = __dirname + path;
+	const routePath = (path = "/") => {
+		const pathDir = __dirname + path;
+		fs.readdirSync(pathDir).forEach(function(item) {
+			if(item === "router.js") return;
 
-	fs.readdirSync(pathDir).map((item) => {
-		if(item === "router.js") return;
+			const pathFile = `${pathDir}/${item}`;
+			const stat = fs.statSync(pathFile);
 
-		const pathFile = `${pathDir}/${item}`;
-		const stat = fs.statSync(pathFile);
-
-		if(stat.isDirectory()){
-			if(item === "model"){
-				defineModels(pathFile)
+			if(stat.isDirectory()){
+				if(item === "model"){
+					require(pathFile+"/index");
+				} else {
+					routePath(`/${item}`);
+				}
 			} else {
-				routePath(`/${item}`);
+				item = item.split(".")[0];
+				const requestAddress = path.replace(/\./gmi, "") + "/" + item + "/";
+				console.log(`> Registering new route: ${requestAddress} BY .${path}/${item}`.cyan);
+				app.use(requestAddress, require(`.${path}/${item}`));
 			}
-		} else {
-			const requestAddress = path.replace(/\./gmi, "") + "/" + item.split(".")[0];
-			console.log(`> Registering new route: ${requestAddress} BY ${pathFile}`.cyan);
-			expressRouter.use(requestAddress, require(`${pathFile}`));
-		}
-	});
+		});
+	}
+
+	routePath();
 }
-
-const defineModels = (path = "") => {
-	fs.readdirSync(path).map((item) => {
-		const pathFile = `${path}/${item}`;
-		const stat = fs.statSync(pathFile);
-
-		if(stat.isFile()){
-			require(pathFile);
-		}
-	});
-}
-
-routePath();
-
-module.exports = expressRouter;

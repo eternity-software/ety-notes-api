@@ -27,6 +27,7 @@ app.use(logger);
 // Include body-parser for converting request to json
 app.use(bodyParser.urlencoded({ extended: true }));
 
+
 app.use((req, res, next) => {
 	// Set response for Response
 	Response.set(res);
@@ -35,8 +36,7 @@ app.use((req, res, next) => {
 });
 
 // Connect all routes (and all versions)
-app.use("/", require("./api/router"));
-
+require("./api/router")(app);
 
 const server = http.createServer(app);
 server.listen(80, () => {
