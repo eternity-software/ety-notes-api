@@ -37,6 +37,20 @@ router.get({
 });
 
 router.get({
+	url: "/get",
+	model: "/model/task",
+	method: "get",
+	params: {
+		token: {
+			required: true
+		},
+		id: {
+			required: true
+		}
+	}
+});
+
+router.get({
 	url: "/edit",
 	model: "/model/task",
 	method: "edit",
@@ -62,6 +76,20 @@ router.get({
 		},
 		end_time: {
 			maxLength: 11,
+			required: true
+		}
+	}
+});
+
+router.get({
+	url: "/getList",
+	model: "/model/task",
+	method: "getList",
+	params: {
+		token: {
+			required: true
+		},
+		id: {
 			required: true
 		}
 	}

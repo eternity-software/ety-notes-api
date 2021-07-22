@@ -1,3 +1,4 @@
+require("colors");
 const express = require("express");
 const Response = require("./response");
 let expressRouter = null;
@@ -18,6 +19,7 @@ const setup = (localPath) => {
  * @param route
  */
 const get = (route) => {
+	console.log(`> Router register GET '${route.url}'`.cyan)
 	expressRouter.get(route.url, (req) => {
 		register(route, req.query);
 	});
@@ -28,6 +30,7 @@ const get = (route) => {
  * @param route
  */
 const post = (route) => {
+	console.log(`> Router register POST '${route.url}'`.cyan)
 	expressRouter.post(route.url, (req) => {
 		register(route, req.body);
 	});

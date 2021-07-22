@@ -34,6 +34,29 @@ const create = async ({token, listId, performerId, name, target, create_time, en
 }
 
 /**
+ * Get task
+ * @param token
+ * @param id
+ * @returns {Promise<void>}
+ */
+const get = async ({token, id}) => {
+	// Getting task
+	const task = await models.Task.findOne({where: {id: id}, raw: true});
+
+	if(task) {
+		// Getting list
+		const list = await models.List.findOne({where: {id: task.listId}, raw: true});
+		if(list) {
+			// Check rights
+			if(await deskModel.getMember(token, list.deskId) !== true) return Response.error(400, "Access denied");
+			//Showing
+			return Response.success({task: task});
+		}
+	}
+	return Response.error(400, "Task not found");
+}
+
+/**
  * Edit task
  * @param token
  * @param id
@@ -61,6 +84,28 @@ const edit = async ({token, id, name, target, create_time, end_time}) => {
 		}
 	}
 	return Response.error(400, "Task not found");
+}
+
+/**
+ * Get task list
+ * @param token
+ * @param id
+ * @returns {Promise<void>}
+ */
+const getList = async ({token, listId}) => {
+	// Getting list
+	const list = await models.List.findOne({where: {id: listId}, raw: true});
+	if(list) {
+		// Check rights
+		if(await deskModel.getMember(token, list.deskId) !== true) return Response.error(400, "Access denied");
+		//Showing
+		const tasks = await models.Task.find({where: {listId: listId}, raw: true});
+		if(tasks){
+			return Response.success({tasks: tasks});
+		}
+		return Response.error(400, "Tasks not found");
+	}
+	return Response.error(400, "List not found");
 }
 
 /**
@@ -168,4 +213,4 @@ const done = async ({token, id}) => {
 	return Response.error(400, "Task not found");
 }
 
-module.exports = { create, edit, addPerformer, removePerformer, remove, done }
+module.exports = { create, get, edit, getList, addPerformer, removePerformer, remove, done }
