@@ -89,7 +89,7 @@ router.get({
 		token: {
 			required: true
 		},
-		id: {
+		listId: {
 			required: true
 		}
 	}
