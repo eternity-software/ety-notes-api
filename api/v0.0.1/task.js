@@ -4,10 +4,16 @@ router.setup(__dirname);
 
 router.get({
 	url: "/create",
-	model: "/model/desk",
+	model: "/model/task",
 	method: "create",
 	params: {
 		token: {
+			required: true
+		},
+		listId: {
+			required: true
+		},
+		performerId: {
 			required: true
 		},
 		name: {
@@ -15,22 +21,16 @@ router.get({
 			maxLength: 255,
 			required: true
 		},
-		description: {
-			maxLength: 255,
-			required: false
-		}
-	}
-});
-
-router.get({
-	url: "/get",
-	model: "/model/desk",
-	method: "get",
-	params: {
-		token: {
+		target: {
+			maxLength: 3000,
 			required: true
 		},
-		id: {
+		create_time: {
+			maxLength: 11,
+			required: true
+		},
+		end_time: {
+			maxLength: 11,
 			required: true
 		}
 	}
@@ -38,7 +38,7 @@ router.get({
 
 router.get({
 	url: "/edit",
-	model: "/model/desk",
+	model: "/model/task",
 	method: "edit",
 	params: {
 		token: {
@@ -52,7 +52,36 @@ router.get({
 			maxLength: 255,
 			required: true
 		},
-		description: {
+		target: {
+			maxLength: 3000,
+			required: true
+		},
+		create_time: {
+			maxLength: 11,
+			required: true
+		},
+		end_time: {
+			maxLength: 11,
+			required: true
+		}
+	}
+});
+
+router.get({
+	url: "/addPerformer",
+	model: "/model/task",
+	method: "addPerformer",
+	params: {
+		token: {
+			required: true
+		},
+		taskId: {
+			required: true
+		},
+		accountId: {
+			required: true
+		},
+		position: {
 			maxLength: 255,
 			required: true
 		}
@@ -60,9 +89,26 @@ router.get({
 });
 
 router.get({
-	url: "/getMembers",
-	model: "/model/desk",
-	method: "getMembers",
+	url: "/removePerformer",
+	model: "/model/task",
+	method: "removePerformer",
+	params: {
+		token: {
+			required: true
+		},
+		taskId: {
+			required: true
+		},
+		accountId: {
+			required: true
+		}
+	}
+});
+
+router.get({
+	url: "/remove",
+	model: "/model/task",
+	method: "remove",
 	params: {
 		token: {
 			required: true
@@ -74,43 +120,9 @@ router.get({
 });
 
 router.get({
-	url: "/addMember",
-	model: "/model/desk",
-	method: "addMember",
-	params: {
-		token: {
-			required: true
-		},
-		deskId: {
-			required: true
-		},
-		accountId: {
-			required: true
-		}
-	}
-});
-
-router.get({
-	url: "/addManager",
-	model: "/model/desk",
-	method: "addManager",
-	params: {
-		token: {
-			required: true
-		},
-		deskId: {
-			required: true
-		},
-		accountId: {
-			required: true
-		}
-	}
-});
-
-router.get({
-	url: "/remove",
-	model: "/model/desk",
-	method: "remove",
+	url: "/done",
+	model: "/model/task",
+	method: "done",
 	params: {
 		token: {
 			required: true

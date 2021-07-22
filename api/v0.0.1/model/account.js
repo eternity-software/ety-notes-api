@@ -88,12 +88,17 @@ const login = async ({email, password}) => {
  * Authentication
  * @returns {Promise<void>}
  * @param token
+ * @param onlyActivated
  */
-const auth = async (token) => {
+const auth = async (token, onlyActivated = false) => {
 	let session = await models.AccountSession.findOne({where: {token: token}, raw: true})
 	if(session) {
 		if(session.activated === "Y"){
-			return await models.Account.findByPk(session.accountId);
+			let account = await models.Account.findOne({where: {id: session.accountId}, raw: true});
+			if( (onlyActivated && account.activated === "Y") || !onlyActivated){
+				return account;
+			}
+			return Response.error(400, "Account is not activated");
 		} else {
 			return Response.error(400, "Token is expired");
 		}
@@ -138,7 +143,7 @@ const activate = async ({token, code}) => {
  * @returns {Promise<void>}
  */
 const edit = async ({token, name}) => {
-	let account = await auth(token);
+	let account = await auth(token, true);
 	if(await models.Account.update({name}, {where: {id: account.id}})){
 		return Response.success([]);
 	}

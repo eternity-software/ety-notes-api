@@ -10,9 +10,24 @@ const Response = require("../../../core/response");
  * @returns {Promise<boolean>}
  */
 const checkRights = async (token, deskId, onlyCreator = false) => {
-	const account = await accountModel.auth(token);
-	const ourMember = await models.DeskMember.findOne({where: {accoundId: account.id, deskId: deskId}, raw: true});
+	const account = await accountModel.auth(token, true);
+	const ourMember = await models.DeskMember.findOne({where: {accountId: account.id, deskId: deskId}, raw: true});
 	if(ourMember && ( (ourMember.type === "manager" && !onlyCreator) || ourMember.type === "creator") ){
+		return true;
+	}
+	return Response.error(400, "Access is denied");
+}
+
+/**
+ * Get member
+ * @param token
+ * @param deskId
+ * @returns {Promise<boolean|void>}
+ */
+const getMember = async (token, deskId) => {
+	const account = await accountModel.auth(token, true);
+	const ourMember = await models.DeskMember.findOne({where: {accountId: account.id, deskId: deskId}, raw: true});
+	if(ourMember){
 		return true;
 	}
 	return Response.error(400, "Access is denied");
@@ -25,13 +40,29 @@ const checkRights = async (token, deskId, onlyCreator = false) => {
  * @param description
  */
 const create = async ({token, name, description}) => {
-	const account = await accountModel.auth(token);
+	const account = await accountModel.auth(token, true);
 	models.Desk.create({name, description}).then((res) => {
 		const deskId = res.id;
 		models.DeskMember.create({type: "creator", accountId: account.id, deskId: deskId}).then(() => {
 			return Response.success({deskId: deskId});
 		})
 	});
+}
+
+/**
+ * Get desk
+ * @param token
+ * @param id
+ * @returns {Promise<void>}
+ */
+const get = async ({token, id}) => {
+	// Check our rights for it
+	if(await getMember(token, id) !== false) return;
+	const desk = await models.Desk.findOne({where: {id: id}, raw: true});
+	if(desk) {
+		return Response.success({desk: desk});
+	}
+	return Response.error(500, "Some wrong");
 }
 
 /**
@@ -43,9 +74,26 @@ const create = async ({token, name, description}) => {
  */
 const edit = async ({token, id, name, description}) => {
 	// Check our rights for it
-	await checkRights(token, id);
+	if(!await checkRights(token, id, true)) return;
+
 	if(await models.Desk.update({name, description}, {where: {id: id}})){
 		return Response.success();
+	}
+	return Response.error(500, "Some wrong");
+}
+
+/**
+ * Get members
+ * @param token
+ * @param id
+ * @returns {Promise<void>}
+ */
+const getMembers = async ({token, id}) => {
+	// Check our rights for it
+	if(await getMember(token, id) !== false) return;
+	const members = await models.DeskMember.find({where: {deskId: id}, raw: true});
+	if(members) {
+		return Response.success({members: members});
 	}
 	return Response.error(500, "Some wrong");
 }
@@ -59,11 +107,14 @@ const edit = async ({token, id, name, description}) => {
  */
 const addMember = async ({token, deskId, accountId}) => {
 	// Check our rights for it
-	await checkRights(token, deskId);
-	models.DeskMember.create({type: "performer", accountId: accountId, deskId: deskId}).then(() => {
-		return Response.success();
-	})
-	return Response.error(500, "Some wrong");
+	if(!await checkRights(token, deskId, true)) return;
+	if(await models.DeskMember.findOne({where: {accountId: accountId, deskId: deskId}})) {
+		if (await models.DeskMember.create({type: "performer", accountId: accountId, deskId: deskId})) {
+			return Response.success();
+		}
+		return Response.error(500, "Some wrong");
+	}
+	return Response.error(500, "He is already member");
 }
 
 /**
@@ -73,13 +124,17 @@ const addMember = async ({token, deskId, accountId}) => {
  * @param accountId
  * @returns {Promise<void>}
  */
-const addOwner = async ({token, deskId, accountId}) => {
+const addManager = async ({token, deskId, accountId}) => {
 	// Check our rights for it
-	await checkRights(token, deskId, true);
-	models.DeskMember.create({type: "manager", accountId: accountId, deskId: deskId}).then(() => {
-		return Response.success();
-	})
-	return Response.error(500, "Some wrong");
+	if(!await checkRights(token, deskId, true)) return;
+
+	if(await models.DeskMember.findOne({where: {accountId: accountId, deskId: deskId}})) {
+		if(await models.DeskMember.create({type: "manager", accountId: accountId, deskId: deskId})){
+			return Response.success();
+		}
+		return Response.error(500, "Some wrong");
+	}
+	return Response.error(500, "He is already member");
 }
 
 /**
@@ -90,11 +145,12 @@ const addOwner = async ({token, deskId, accountId}) => {
  */
 const remove = async ({token, id}) => {
 	// Check our rights for it
-	await checkRights(token, id, true);
-	models.Desk.destroy({where: {id: id}}).then(() => {
+	if(!await checkRights(token, id, true)) return;
+
+	if(await models.Desk.destroy({where: {id: id}})){
 		return Response.success();
-	});
+	}
 	return Response.error(500, "Some wrong");
 }
 
-module.exports = { checkRights, create, edit, addMember, addOwner, remove }
+module.exports = { checkRights, getMember, create, get, edit, getMembers, addMember, addManager, remove }

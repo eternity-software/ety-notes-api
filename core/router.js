@@ -1,14 +1,15 @@
 const express = require("express");
-const expressRouter = express.Router();
 const Response = require("./response");
-
+let expressRouter = null;
 let path = __dirname;
 
 /**
  * Setup local path
  * @param localPath
+ * @param {string} localPath
  */
 const setup = (localPath) => {
+	expressRouter = express.Router();
 	path = localPath;
 }
 

@@ -28,14 +28,30 @@ const checkRights = async (token, listId) => {
  * @param description
  */
 const create = async ({token, deskId, name, description}) => {
-	const account = await accountModel.auth(token);
+	await accountModel.auth(token);
 	await deskModel.checkRights(token, deskId);
 	models.List.create({name, description, deskId}).then((res) => {
-		const deskId = res.id;
-		models.DeskMember.create({type: "creator", accountId: account.id, deskId: deskId}).then(() => {
-			return Response.success({deskId: deskId});
-		})
+		return Response.success({listId: res.id});
 	});
+	return Response.error(500, "Some wrong");
+}
+
+/**
+ * Get list
+ * @param token
+ * @param id
+ * @returns {Promise<void>}
+ */
+const get = async ({token, id}) => {
+	// Getting list
+	const list = await models.List.findOne({where: {id: id}, raw: true});
+	// If he fined
+	if(list){
+		// Checking rights
+		if(await deskModel.getMember(token, list.deskId) !== true) return Response.error(500, "Access denied");
+		return Response.success({list: list});
+	}
+	return Response.error(500, "List not found");
 }
 
 /**
@@ -71,4 +87,4 @@ const remove = async ({token, id}) => {
 	return Response.error(500, "Some wrong");
 }
 
-module.exports = { checkRights, create, edit, remove }
+module.exports = { checkRights, create, get, edit, remove }

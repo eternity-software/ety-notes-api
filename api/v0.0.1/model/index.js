@@ -173,6 +173,7 @@ const TaskPerformer = db.define("task_performer", {
 	},
 	position: {
 		type: Sequelize.STRING,
+		defaultValue: "Performer",
 		maxLength: 255,
 		allowNull: false
 	}

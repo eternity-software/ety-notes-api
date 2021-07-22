@@ -26,6 +26,20 @@ router.get({
 });
 
 router.get({
+	url: "/get",
+	model: "/model/list",
+	method: "get",
+	params: {
+		token: {
+			required: true
+		},
+		id: {
+			required: true
+		}
+	}
+});
+
+router.get({
 	url: "/edit",
 	model: "/model/list",
 	method: "edit",
