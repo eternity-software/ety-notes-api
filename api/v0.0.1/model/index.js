@@ -46,7 +46,7 @@ const AccountSession = db.define("account_session", {
 		allowNull: false
 	},
 	time: {
-		type: Sequelize.INTEGER,
+		type: Sequelize.INTEGER(14),
 		allowNull: false
 	},
 	activated: {
@@ -148,11 +148,11 @@ const Task = db.define("task", {
 		allowNull: false
 	},
 	create_time: {
-		type: Sequelize.INTEGER,
+		type: Sequelize.INTEGER(14),
 		allowNull: false
 	},
 	end_time: {
-		type: Sequelize.INTEGER,
+		type: Sequelize.INTEGER(14),
 		allowNull: false
 	},
 	done: {
