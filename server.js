@@ -40,7 +40,7 @@ app.use((req, res, next) => {
 require("./api/router")(app, version ? version : app_config.version);
 
 const server = http.createServer(app);
-server.listen(80, () => {
+server.listen(app_config.port, () => {
 	console.log("\n---- SERVER STARTED ----\n".green);
 	console.log(">> etyNotes API, 2021 ")
 	console.timeLog(timeLabel);

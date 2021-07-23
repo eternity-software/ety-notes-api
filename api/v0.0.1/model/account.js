@@ -1,4 +1,5 @@
 const models = require("./index");
+const mail = require("../../../core/mail");
 const Hash = require("../../../core/hash");
 const Response = require("../../../core/response");
 
@@ -48,8 +49,16 @@ const create = async ({name, email, password}) => {
 		// Generate activation code
 		const code = code_generate();
 		// Creating activation code
-		await models.AccountVerifyCode.create({code: code, accountId: accountId}).then(() => {
-			Response.success({token: token});
+		await models.AccountVerifyCode.create({code: code, accountId: accountId}).then(async () => {
+			if (await mail.sendMail({
+				from: '"etyNotes" <etynotes@etysoft.ru>',
+				to: email,
+				subject: 'Account activation',
+				text: 'Your code: ' + code
+			})){
+				Response.success({token: token});
+			}
+			return Response.error(500, "Email not sent");
 		});
 	});
 }
