@@ -89,6 +89,7 @@ const handler = (model, method, params) => {
 		const module = require(path + model);
 		module[method](params);
 	} catch (e) {
+		console.log(e);
 		return Response.error(500, e);
 	}
 }

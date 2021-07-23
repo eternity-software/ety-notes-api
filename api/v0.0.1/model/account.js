@@ -1,5 +1,4 @@
 const models = require("./index");
-const mail = require("../../../core/mail");
 const Hash = require("../../../core/hash");
 const Response = require("../../../core/response");
 
@@ -25,6 +24,7 @@ const code_generate = (count = 6) => {
  */
 const create = async ({name, email, password}) => {
 	// Hashing password
+	const mail = await (require("../../../core/mail"))();
 	password = Hash.make(password);
 	// Find account with typed email
 	if(await models.Account.findOne({ where: { email: email }, raw: true })) {
@@ -51,12 +51,12 @@ const create = async ({name, email, password}) => {
 		// Creating activation code
 		await models.AccountVerifyCode.create({code: code, accountId: accountId}).then(async () => {
 			if (await mail.sendMail({
-				from: '"etyNotes" <etynotes@etysoft.ru>',
+				from: '"etyNotes" <support@mcute.ru>',
 				to: email,
 				subject: 'Account activation',
 				text: 'Your code: ' + code
 			})){
-				Response.success({token: token});
+				return Response.success({token: token});
 			}
 			return Response.error(500, "Email not sent");
 		});
