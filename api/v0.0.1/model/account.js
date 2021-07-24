@@ -23,8 +23,9 @@ const code_generate = (count = 6) => {
  * @returns {Promise<void>}
  */
 const create = async ({name, email, password}) => {
-	// Hashing password
+	// Require mail module
 	const mail = await (require("../../../core/mail"))();
+	// Hashing password
 	password = Hash.make(password);
 	// Find account with typed email
 	if(await models.Account.findOne({ where: { email: email }, raw: true })) {

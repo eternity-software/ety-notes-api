@@ -60,6 +60,17 @@ router.get({
 });
 
 router.get({
+	url: "/getList",
+	model: "/model/desk",
+	method: "getList",
+	params: {
+		token: {
+			required: true
+		}
+	}
+});
+
+router.get({
 	url: "/getMembers",
 	model: "/model/desk",
 	method: "getMembers",

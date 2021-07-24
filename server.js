@@ -10,6 +10,7 @@ const express = require("express");
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const colors = require("colors");
+const cors = require("cors");
 const Response = require("./core/response");
 const Database = require("./core/database");
 const app_config = require("./config/app.config");
@@ -25,6 +26,8 @@ Database.sync().then(() => console.log("> Database synced".cyan));
 app.use(logger);
 // Include body-parser for converting request to json
 app.use(bodyParser.urlencoded({ extended: true }));
+// Enable cors
+app.use(cors());
 
 let version = false;
 app.use((req, res, next) => {
