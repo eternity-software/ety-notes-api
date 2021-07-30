@@ -42,7 +42,7 @@ const getMember = async (token, deskId) => {
  * @param description
  */
 const create = async ({token, name, description}) => {
-	const account = await accountModel.auth(token, true);
+	const account = (await accountModel.auth(token, true)) ?? false;
 	if(account){
 		models.Desk.create({name, description}).then((res) => {
 			const deskId = res.id;
@@ -61,12 +61,11 @@ const create = async ({token, name, description}) => {
  */
 const get = async ({token, id}) => {
 	// Check our rights for it
-	if(await getMember(token, id) !== false) return;
+	if(await getMember(token, id) !== true) return Response.error(500, "Some wrong");
 	const desk = await models.Desk.findOne({where: {id: id}, raw: true});
 	if(desk) {
 		return Response.success({desk: desk});
 	}
-	return Response.error(500, "Some wrong");
 }
 
 /**
