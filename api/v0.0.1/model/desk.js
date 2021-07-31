@@ -61,7 +61,8 @@ const create = async ({token, name, description}) => {
  */
 const get = async ({token, id}) => {
 	// Check our rights for it
-	if(await getMember(token, id) !== true) return Response.error(500, "Some wrong");
+	const member = await getMember(token, id);
+	if(member !== true) return member;
 	const desk = await models.Desk.findOne({where: {id: id}, raw: true});
 	if(desk) {
 		return Response.success({desk: desk});
