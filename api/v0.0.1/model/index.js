@@ -127,6 +127,7 @@ const List = db.define("list", {
 		allowNull: false
 	}
 });
+// У списка нет создателя, ловим ошибку если есть
 Account.hasMany(List, { onDelete: 'cascade' });
 Desk.hasMany(List, { onDelete: 'cascade' });
 

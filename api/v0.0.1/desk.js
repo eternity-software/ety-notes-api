@@ -132,4 +132,18 @@ router.get({
 	}
 });
 
+router.get({
+	url: "/getTaskLists",
+	model: "/model/desk",
+	method: "getTaskLists",
+	params: {
+		token: {
+			required: true
+		},
+		deskId: {
+			required: true
+		}
+	}
+});
+
 module.exports = router.router();

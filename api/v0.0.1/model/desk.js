@@ -44,9 +44,10 @@ const getMember = async (token, deskId) => {
 const create = async ({token, name, description}) => {
 	const account = (await accountModel.auth(token, true)) ?? false;
 	if(account){
-		models.Desk.create({name, description}).then((res) => {
+		let accountId = account.id;
+		models.Desk.create({name, description, accountId}).then((res) => {
 			const deskId = res.id;
-			models.DeskMember.create({type: "creator", accountId: account.id, deskId: deskId}).then(() => {
+			models.DeskMember.create({type: "creator", accountId: accountId, deskId: deskId}).then(() => {
 				return Response.success({deskId: deskId});
 			})
 		});
@@ -105,6 +106,31 @@ const getList = async ({token}) => {
 	
 		if(desks) {
 			return Response.success({desks: desks});
+		}
+	}
+	return Response.error(500, "Some wrong");
+}
+
+/**
+ * Get desk list
+ * @param token
+ * @param deskId
+ */
+const getTaskLists = async ({token, deskId}) => {
+	const account = await accountModel.auth(token, true);
+	if(account){
+		const lists = await sequelize.query(
+			'SELECT * FROM lists WHERE lists.deskId = :deskId',
+			{
+				replacements: { deskId: deskId },
+				type: QueryTypes.SELECT
+			}
+		);
+
+		console.log(lists);
+
+		if(lists) {
+			return Response.success({lists: lists});
 		}
 	}
 	return Response.error(500, "Some wrong");
@@ -181,4 +207,4 @@ const remove = async ({token, id}) => {
 	return Response.error(500, "Some wrong");
 }
 
-module.exports = { checkRights, getMember, create, get, edit, getList, getMembers, addMember, addManager, remove }
+module.exports = { checkRights, getMember, create, get, edit, getList, getMembers, addMember, addManager, remove, getTaskLists }
