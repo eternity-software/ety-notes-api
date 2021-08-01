@@ -32,10 +32,13 @@ const checkRights = async (token, listId) => {
 const create = async ({token, deskId, name, description}) => {
 	const account = await accountModel.auth(token);
 	const accountId = account.id;
-	await deskModel.checkRights(token, deskId);
-	models.List.create({name, description, deskId, accountId}).then((res) => {
-		return Response.success({listId: res.id});
-	});
+	let access = await deskModel.checkRights(token, deskId);
+	if(access) {
+		models.List.create({name, description, deskId, accountId}).then((res) => {
+			return Response.success({listId: res.id});
+		});
+	}
+
 	// Жопа, already sent exception
 	//return Response.error(500, "Some wrong");
 }
