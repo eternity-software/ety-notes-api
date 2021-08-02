@@ -21,7 +21,7 @@ const create = async ({token, listId, performerId, name, target, create_time, en
 		// Check rights
 		if(await deskModel.checkRights(token, list.deskId) !== true) return Response.error(400, "Access denied");
 		// Creating task
-		models.Task.create({name, target, create_time, end_time, listId}).then(async (res) => {
+		models.Task.create({name, target, create_time, end_time, listId, accountId: performerId}).then(async (res) => {
 			const taskId = res.id;
 			// Creating performer
 			if (await models.TaskPerformer.create({taskId, accountId: performerId})) {
@@ -30,7 +30,11 @@ const create = async ({token, listId, performerId, name, target, create_time, en
 			return Response.error(500, "Something wrong");
 		});
 	}
-	return Response.error(400, "List not found");
+	else
+	{
+		return Response.error(400, "List not found");
+	}
+
 }
 
 /**
@@ -133,7 +137,10 @@ const addPerformer = async ({token, taskId, accountId, position}) => {
 			return Response.error(500, "Something wrong");
 		}
 	}
-	return Response.error(400, "Task not found");
+	else {
+		return Response.error(400, "Task not found");
+	}
+
 }
 
 /**
@@ -212,7 +219,10 @@ const remove = async ({token, id}) => {
 			return Response.error(500, "Something wrong");
 		}
 	}
-	return Response.error(400, "Task not found");
+	else {
+		return Response.error(400, "Task not found");
+	}
+
 }
 
 /**
